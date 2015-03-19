@@ -1,0 +1,7 @@
+Exercícios:
+
+1. Derive as equações paramétricas de um tóro
+com raio R e raio interno r
+
+2. Agora derive a representação paramétrica
+para seus vetores normais.

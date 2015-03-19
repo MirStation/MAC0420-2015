@@ -1,0 +1,5 @@
+Leitura livro-texto:
+
+Shirley and Marschner. Fundamentals of Computer
+Graphics, CRC Press, 3rd Ed. 2010
+Capítulos 2-4

@@ -1,0 +1,12 @@
+Exercícios:
+
+1. Faça com que o programa agora desenhe
+dois triângulos, um ao lado do outro, em
+cores diferentes, e que um rotacione no
+sentido anti-horário e outro no sentido
+horário.
+
+2. Agora faça com que o seu canvas ocupe a
+janela inteira do seu browser, garantindo essa
+funcionalidade mesmo após o
+redimensionamento.

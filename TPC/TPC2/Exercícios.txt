@@ -1,0 +1,14 @@
+Exercícios:
+
+1.Criar um programa em
+WebGL que aproxime um
+círculo de raio unitário
+utilizando subdivisões
+sucessivas de um quadrado
+inscrito
+
+2. Faça a mesma tarefa em
+3D, mas de forma a
+aproximar uma esfera
+utilizando como base um
+octaedro regular.
