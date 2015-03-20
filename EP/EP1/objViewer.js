@@ -139,6 +139,23 @@ window.onload = function init() {
     document.getElementById('files').onchange = function (evt) {
 
         // TO DO: load OBJ file and display
+        var file, reader;
+        
+        if (window.File && window.FileReader && window.FileList && window.Blob) {
+            // All the File APIs are supported.
+        } else {
+            alert('The File APIs are not fully supported in this browser.');
+        }
+        
+        file = evt.target.files[0]; // Getting just one file from the FileList object
+        if(file) {
+            reader = new FileReader();
+            reader.onload = function(e) { 
+                // After loading the FileList object as a text, we call loadObject
+                loadObject(e.target.result);    
+            }  
+            reader.readAsText(file);  // reading the FileList object as a text 
+        }
     };
 
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
