@@ -10,15 +10,15 @@ var pointsArray = [];
 var normalsArray = [];
 
 var vertices = [
-        vec4( -0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5,  0.5,  0.5, 1.0 ),
-        vec4( 0.5,  0.5,  0.5, 1.0 ),
-        vec4( 0.5, -0.5,  0.5, 1.0 ),
-        vec4( -0.5, -0.5, -0.5, 1.0 ),
-        vec4( -0.5,  0.5, -0.5, 1.0 ),
-        vec4( 0.5,  0.5, -0.5, 1.0 ),
-        vec4( 0.5, -0.5, -0.5, 1.0 )
-    ];
+    vec4( -0.5, -0.5,  0.5, 1.0 ),
+    vec4( -0.5,  0.5,  0.5, 1.0 ),
+    vec4( 0.5,  0.5,  0.5, 1.0 ),
+    vec4( 0.5, -0.5,  0.5, 1.0 ),
+    vec4( -0.5, -0.5, -0.5, 1.0 ),
+    vec4( -0.5,  0.5, -0.5, 1.0 ),
+    vec4( 0.5,  0.5, -0.5, 1.0 ),
+    vec4( 0.5, -0.5, -0.5, 1.0 )
+];
 
 var lightPosition = vec4( 10.0, 10.0, 10.0, 0.0 );
 var lightAmbient = vec4( 0.2, 0.2, 0.2, 1.0 );
@@ -66,23 +66,23 @@ var flag = true;
 
 // generate a quadrilateral with triangles
 function quad(a, b, c, d) {
-
-     var t1 = subtract(vertices[b], vertices[a]);
-     var t2 = subtract(vertices[c], vertices[b]);
-     var normal = vec4(cross(t1, t2), 0);
-
-     pointsArray.push(vertices[a]); 
-     normalsArray.push(normal); 
-     pointsArray.push(vertices[b]); 
-     normalsArray.push(normal); 
-     pointsArray.push(vertices[c]); 
-     normalsArray.push(normal);   
-     pointsArray.push(vertices[a]);  
-     normalsArray.push(normal); 
-     pointsArray.push(vertices[c]); 
-     normalsArray.push(normal); 
-     pointsArray.push(vertices[d]); 
-     normalsArray.push(normal);    
+    
+    var t1 = subtract(vertices[b], vertices[a]);
+    var t2 = subtract(vertices[c], vertices[b]);
+    var normal = vec4(cross(t1, t2), 0);
+    
+    pointsArray.push(vertices[a]); 
+    normalsArray.push(normal); 
+    pointsArray.push(vertices[b]); 
+    normalsArray.push(normal); 
+    pointsArray.push(vertices[c]); 
+    normalsArray.push(normal);   
+    pointsArray.push(vertices[a]);  
+    normalsArray.push(normal); 
+    pointsArray.push(vertices[c]); 
+    normalsArray.push(normal); 
+    pointsArray.push(vertices[d]); 
+    normalsArray.push(normal);    
 }
 
 // define faces of a cube
@@ -97,47 +97,47 @@ function colorCube()
 }
 
 window.onload = function init() {
-
+    
     canvas = document.getElementById( "gl-canvas" );
     
     gl = WebGLUtils.setupWebGL( canvas );
     if ( !gl ) { alert( "WebGL isn't available" ); }
-
+    
     // create viewport and clear color
     gl.viewport( 0, 0, canvas.width, canvas.height );
     gl.clearColor( 0.5, 0.5, 0.5, 1.0 );
     
     // enable depth testing for hidden surface removal
     gl.enable(gl.DEPTH_TEST);
-
+    
     //  load shaders and initialize attribute buffers
     program = initShaders( gl, "vertex-shader", "fragment-shader" );
     gl.useProgram( program );
     
     // draw simple cube for starters
     colorCube();
-
+    
     // create vertex and normal buffers
     createBuffers();
-
+    
     thetaLoc = gl.getUniformLocation(program, "theta"); 
 
     // create light components
     ambientProduct = mult(lightAmbient, materialAmbient);
     diffuseProduct = mult(lightDiffuse, materialDiffuse);
     specularProduct = mult(lightSpecular, materialSpecular);
-
+    
     // create model view and projection matrices
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
-
+    
     document.getElementById("ButtonX").onclick = function(){axis = xAxis;};
     document.getElementById("ButtonY").onclick = function(){axis = yAxis;};
     document.getElementById("ButtonZ").onclick = function(){axis = zAxis;};
     document.getElementById("ButtonT").onclick = function(){flag = !flag;};
-
+    
     document.getElementById('files').onchange = function (evt) {
-
+	
         // TO DO: load OBJ file and display
         var file, reader;
         
@@ -157,18 +157,17 @@ window.onload = function init() {
             reader.readAsText(file);  // reading the FileList object as a text 
         }
     };
-
+    
     gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),
-       flatten(ambientProduct));
+		  flatten(ambientProduct));
     gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),
-       flatten(diffuseProduct) );
-    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"), 
-       flatten(specularProduct) );	
-    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"), 
-       flatten(lightPosition) );
-       
-    gl.uniform1f(gl.getUniformLocation(program, 
-       "shininess"),materialShininess);
+		  flatten(diffuseProduct) );
+    gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),
+		  flatten(specularProduct) );	
+    gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),
+		  flatten(lightPosition) );
+    
+    gl.uniform1f(gl.getUniformLocation(program, "shininess"),materialShininess);
     
     render();
 }
