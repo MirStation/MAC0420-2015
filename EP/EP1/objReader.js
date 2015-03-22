@@ -54,11 +54,13 @@ function loadObjFile(data) {
 		    objPacket.vertices.push(vPositions[k][0]);
 		    objPacket.vertices.push(vPositions[k][1]);
 		    objPacket.vertices.push(vPositions[k][2]);
+		    objPacket.vertices.push(1.0);
 		    // Vertex Normals
 		    if(typeof vNormals === undefined && vNormals.length == 0) throw new Error("vNormals is undefined!");
 		    objPacket.normals.push(vNormals[k][0]);
 		    objPacket.normals.push(vNormals[k][1]);
 		    objPacket.normals.push(vNormals[k][2]);
+		    objPacket.normals.push(0.0);
 		}
 	    }
             break;
@@ -67,7 +69,7 @@ function loadObjFile(data) {
             break;
 	}
     }
-    
+    console.log("numVertices: " + objPacket.numVertices);
     return objPacket;
 }
 

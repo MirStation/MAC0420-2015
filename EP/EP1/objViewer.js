@@ -118,7 +118,7 @@ window.onload = function init() {
     colorCube();
     
     // create vertex and normal buffers
-    createBuffers();
+    createBuffers(pointsArray, normalsArray);
     
     thetaLoc = gl.getUniformLocation(program, "theta"); 
 
@@ -137,7 +137,6 @@ window.onload = function init() {
     document.getElementById("ButtonT").onclick = function(){flag = !flag;};
     
     document.getElementById('files').onchange = function (evt) {
-	
         // TO DO: load OBJ file and display
         var file, reader;
         
@@ -146,13 +145,12 @@ window.onload = function init() {
         } else {
             alert('The File APIs are not fully supported in this browser.');
         }
-        
         file = evt.target.files[0]; // Getting just one file from the FileList object
         if(file) {
             reader = new FileReader();
             reader.onload = function(e) { 
                 // After loading the FileList object as a text, we call loadObject
-                loadObject(e.target.result);    
+                loadObject(e.target.result);
             }  
             reader.readAsText(file);  // reading the FileList object as a text 
         }
@@ -202,7 +200,7 @@ function createBuffers(points, normals) {
 
     var nBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, nBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(normals), gl.STATIC_DRAW );
     
     var vNormal = gl.getAttribLocation( program, "vNormal" );
     gl.vertexAttribPointer( vNormal, 4, gl.FLOAT, false, 0, 0 );
@@ -210,7 +208,7 @@ function createBuffers(points, normals) {
 
     var vBuffer = gl.createBuffer();
     gl.bindBuffer( gl.ARRAY_BUFFER, vBuffer );
-    gl.bufferData( gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW );
+    gl.bufferData( gl.ARRAY_BUFFER, flatten(points), gl.STATIC_DRAW );
     
     var vPosition = gl.getAttribLocation(program, "vPosition");
     gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
@@ -221,8 +219,13 @@ function createBuffers(points, normals) {
 function loadObject(data) {
 
     // TO DO: convert strings into array of vertex and normal vectors
-    var result = loadObjFile(data);
 
+    var result = loadObjFile(data);
+    createBuffers(result.vertices, result.normals);
+    numVertices = result.numVertices * 4 + 4;
+	
     // TO DO: apply transformation to the object so that he is centered at the origin
+
+    
 
 }
