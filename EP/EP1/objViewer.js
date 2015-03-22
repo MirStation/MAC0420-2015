@@ -222,7 +222,7 @@ function loadObject(data) {
 
     var result = loadObjFile(data);
     createBuffers(result.vertices, result.normals);
-    numVertices = result.numVertices * 4 + 4;
+    numVertices = result.numVertices;
 	
     // TO DO: apply transformation to the object so that he is centered at the origin
 

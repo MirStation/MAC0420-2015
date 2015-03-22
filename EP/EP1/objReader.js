@@ -20,7 +20,6 @@ function loadObjFile(data) {
     	    // Appending the token array to the flatten array of vertices
 	    console.log("v ");
 	    verticesAux.push.apply(verticesAux, token);
-	    objPacket.numVertices++;
             break;
     	case "vn":
             // Appending the token array to the flatten array of normals
@@ -30,9 +29,10 @@ function loadObjFile(data) {
         case "f":
 	    console.log("f");
 	    var vPositions, vNormals;
-            var faces = faceTriangulator(token);
+        var faces = faceTriangulator(token);
 	    var existNormal = checkNormal(faces[0]);
 	    var needToCalculateNormal = true;
+	    objPacket.numVertices += (faces.length * 3);
 	    for(var j = 0; j < faces.length; j++) {
 		vPositions = retrieveVertices(faces[j], 0, verticesAux);
 		if(existNormal) {
