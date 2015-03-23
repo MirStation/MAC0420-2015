@@ -171,7 +171,12 @@ window.onload = function init() {
 }
 
 var render = function() {
-            
+    
+    // If the browser's size and the canvas size are different, 
+    // it resizes the canvas's size to the browser's size and 
+    // sets a new viewport (this prevents distortion of the image)
+    resize();
+    
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             
     if (flag) theta[axis] += 2.0;
@@ -223,9 +228,28 @@ function loadObject(data) {
     var result = loadObjFile(data);
     createBuffers(result.vertices, result.normals);
     numVertices = result.numVertices;
-	
-    // TO DO: apply transformation to the object so that he is centered at the origin
-
     
+    // TO DO: apply transformation to the object so that he is centered at the origin
+    
+}
 
+function resize() {
+    // Get the canvas from the WebGL context
+    var canvas = gl.canvas;
+    
+    // Lookup the size the browser is displaying the canvas.
+    var displayWidth  = canvas.clientWidth;
+    var displayHeight = canvas.clientHeight;
+    
+    // Check if the canvas is not the same size.
+    if (canvas.width  != displayWidth ||
+        canvas.height != displayHeight) {
+	
+        // Make the canvas the same size
+        canvas.width  = displayWidth;
+        canvas.height = displayHeight;
+	
+        // Set the viewport to match
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
 }
