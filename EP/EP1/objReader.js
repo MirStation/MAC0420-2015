@@ -6,7 +6,7 @@ function loadObjFile(data) {
     
     var verticesAux = []; // Array with all the vertices
     var normalsAux = []; // Array with all the normal vectors
-    var objPacket = { vertices:[], numVertices:0, normals:[] }; // Object with all the position vertices and the normal vectors
+    var objPacket = { vertices:[], numVertices:0, normals:[], maxCoordinateOf:[], minCoordinateOf:[] }; // Object with all the position vertices and the normal vectors
     var lines = data.split('\n'); // Splitting the obj file into an array of lines
     var line, token;
     var numVertices = 0;
@@ -52,8 +52,14 @@ function loadObjFile(data) {
 		for(var k = 0; k < faces[j].length; k++) {
 		    // Vertex Position
 		    objPacket.vertices.push(vPositions[k][0]);
+		    objPacket.maxCoordinateOf[0] = maxCoordinate(vPositions[k][0], objPacket.maxCoordinateOf[0]);
+		    objPacket.minCoordinateOf[0] = minCoordinate(vPositions[k][0], objPacket.minCoordinateOf[0]);
 		    objPacket.vertices.push(vPositions[k][1]);
+		    objPacket.maxCoordinateOf[1] = maxCoordinate(vPositions[k][1], objPacket.maxCoordinateOf[1]);
+		    objPacket.minCoordinateOf[1] = minCoordinate(vPositions[k][1], objPacket.minCoordinateOf[1]);
 		    objPacket.vertices.push(vPositions[k][2]);
+		    objPacket.maxCoordinateOf[2] = maxCoordinate(vPositions[k][2], objPacket.maxCoordinateOf[2]);
+		    objPacket.minCoordinateOf[2] = minCoordinate(vPositions[k][2], objPacket.minCoordinateOf[2]);
 		    objPacket.vertices.push(1.0);
 		    // Vertex Normals
 		    if(typeof vNormals === undefined && vNormals.length == 0) throw new Error("vNormals is undefined!");
@@ -69,7 +75,16 @@ function loadObjFile(data) {
             break;
 	}
     }
+    
+    /* DEBUG
     console.log("numVertices: " + objPacket.numVertices);
+    console.log("maxX: " + objPacket.maxCoordinateOf[0]);
+    console.log("minX: " + objPacket.minCoordinateOf[0]);
+    console.log("maxY: " + objPacket.maxCoordinateOf[1]);
+    console.log("minY: " + objPacket.minCoordinateOf[1]);
+    console.log("maxZ: " + objPacket.maxCoordinateOf[2]);
+    console.log("minZ: " + objPacket.minCoordinateOf[2]);
+	--- */
     return objPacket;
 }
 
@@ -154,4 +169,12 @@ function normalCalculator(v1, v2, v3) {
     side2 = subtract(v3, v1);
     perp = cross(side1, side2);
     return normalize(perp);
+}
+
+function maxCoordinate(c, maxc) {
+	return (c > maxc) || (maxc == undefined) ? c : maxc;
+}
+
+function minCoordinate(c, minc){
+	return (c < minc) || (minc == undefined) ? c : minc;	
 }

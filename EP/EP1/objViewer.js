@@ -230,13 +230,29 @@ function createBuffers(points, normals) {
 function loadObject(data) {
 
     // TO DO: convert strings into array of vertex and normal vectors
+    // TO DO: apply transformation to the object so that he is centered at the origin
 
     var result = loadObjFile(data);
+    var xDistToCenter, yDistToCenter, zDistToCenter;
+    
+    xDistToCenter = distToCenter(result.maxCoordinateOf[0], result.minCoordinateOf[0]);
+    yDistToCenter = distToCenter(result.maxCoordinateOf[1], result.minCoordinateOf[1]);
+    zDistToCenter = distToCenter(result.maxCoordinateOf[2], result.minCoordinateOf[2]);
+    
+    for(var i=0, j=0; i<result.numVertices; i++, j+=4) {
+        result.vertices[j] += xDistToCenter;
+        result.vertices[j+1] += yDistToCenter;
+        result.vertices[j+2] += zDistToCenter;
+    }
+
     createBuffers(result.vertices, result.normals);
     numVertices = result.numVertices;
-    
-    // TO DO: apply transformation to the object so that he is centered at the origin
-    
+}
+
+function distToCenter(max, min) {
+    var med = min + ((max - min) / 2);
+    var absMed = Math.abs(med);
+    return med >= 0 ? (-1 * absMed) : absMed;
 }
 
 function resize() {
