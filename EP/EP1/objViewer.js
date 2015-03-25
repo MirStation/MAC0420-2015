@@ -33,6 +33,7 @@ var materialShininess = 100.0;
 // transformation and projection matrices
 var modelViewMatrix, projectionMatrix;
 var modelViewMatrixLoc, projectionMatrixLoc;
+var scaleMatrix, scaleMatrixLoc;
 
 //var ctm;
 var ambientColor, diffuseColor, specularColor;
@@ -130,6 +131,8 @@ window.onload = function init() {
     // create model view and projection matrices
     modelViewMatrixLoc = gl.getUniformLocation(program, "modelViewMatrix");
     projectionMatrixLoc = gl.getUniformLocation(program, "projectionMatrix");
+    scaleMatrixLoc = gl.getUniformLocation(program, "scaleMatrix");
+
     
     document.getElementById("ButtonX").onclick = function(){axis = xAxis;};
     document.getElementById("ButtonY").onclick = function(){axis = yAxis;};
@@ -193,9 +196,12 @@ var render = function() {
     
     projectionMatrix = ortho(xleft, xright, ybottom, ytop, znear, zfar);
 
+    scaleMatrix = scale(512/canvas.width,512/canvas.height,512/canvas.width);
+
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
-
+    gl.uniformMatrix4fv(scaleMatrixLoc, false, flatten(scaleMatrix));
+    
     gl.drawArrays( gl.TRIANGLES, 0, numVertices );
             
     requestAnimFrame(render);
@@ -234,8 +240,6 @@ function loadObject(data) {
 }
 
 function resize() {
-    // Get the canvas from the WebGL context
-    var canvas = gl.canvas;
     
     // Lookup the size the browser is displaying the canvas.
     var displayWidth  = canvas.clientWidth;

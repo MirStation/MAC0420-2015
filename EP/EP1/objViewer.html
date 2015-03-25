@@ -35,9 +35,12 @@ uniform mat4 projectionMatrix;
 
 uniform vec4 lightPosition;
 
+// Scale
+uniform mat4 scaleMatrix;
+
 void main()
 {
-    vec3 pos = -(modelViewMatrix * vPosition).xyz;
+    vec3 pos = -(modelViewMatrix * vPosition * scaleMatrix).xyz; // Does it need to be scaled?
     
     // fixed light postion
     vec3 light = lightPosition.xyz;
@@ -47,7 +50,7 @@ void main()
     vec3 H = normalize( L + E );
 
     // transform vertex normal into eye coordinates
-    vec3 N = normalize( (modelViewMatrix * vNormal).xyz );
+    vec3 N = normalize( (modelViewMatrix * vNormal * scaleMatrix).xyz ); // Does it need to be scaled?
 
     // compute terms in the illumination equation
     vec4 ambient = ambientProduct;
@@ -60,9 +63,9 @@ void main()
     
     if ( dot(L, N) < 0.0 ) {
 	   specular = vec4(0.0, 0.0, 0.0, 1.0);
-    } 
+    }
 
-    gl_Position = projectionMatrix * modelViewMatrix * vPosition;
+    gl_Position = projectionMatrix * modelViewMatrix * scaleMatrix * vPosition;
     
     fColor = ambient + diffuse +specular;
     

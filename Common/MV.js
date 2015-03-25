@@ -598,7 +598,7 @@ function mix( u, v, s )
 //
 // Vector and Matrix functions
 //
-
+/*
 function scale( s, u )
 {
     if ( !Array.isArray(u) ) {
@@ -612,7 +612,7 @@ function scale( s, u )
     
     return result;
 }
-
+*/
 //----------------------------------------------------------------------------
 //
 //
