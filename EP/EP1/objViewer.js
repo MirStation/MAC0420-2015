@@ -175,13 +175,21 @@ window.onload = function init() {
 
 var render = function() {
     
-    // If the browser's size and the canvas size are different, 
-    // it resizes the canvas's size to the browser's size and 
-    // sets a new viewport (this prevents distortion of the image)
-    resize();
-    
+    var displayWidth  = window.innerWidth;
+    var displayHeight = window.innerHeight;
+
+    var min = Math.min(displayWidth,displayHeight);
+    scaleMatrix = scale( min/displayWidth, min/displayHeight, min/displayWidth);
+
+    if (canvas.width  != displayWidth || canvas.height != displayHeight) {
+	canvas.width  = displayWidth;
+        canvas.height = displayHeight;
+    }
+
+    gl.viewport(0, 0, canvas.width, canvas.height);
+
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-            
+
     if (flag) theta[axis] += 2.0;
             
     eye = vec3(cradius * Math.sin(ctheta) * Math.cos(cphi),
@@ -189,14 +197,14 @@ var render = function() {
                cradius * Math.cos(ctheta));
 
     modelViewMatrix = lookAt(eye, at, up);
+
+    modelViewMatrix = mult(modelViewMatrix, scaleMatrix);
               
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[xAxis], [1, 0, 0] ));
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[yAxis], [0, 1, 0] ));
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[zAxis], [0, 0, 1] ));
     
     projectionMatrix = ortho(xleft, xright, ybottom, ytop, znear, zfar);
-
-    scaleMatrix = scale(512/canvas.width,512/canvas.height,512/canvas.width);
 
     gl.uniformMatrix4fv(modelViewMatrixLoc, false, flatten(modelViewMatrix));
     gl.uniformMatrix4fv(projectionMatrixLoc, false, flatten(projectionMatrix));
@@ -258,18 +266,35 @@ function distToCenter(max, min) {
 function resize() {
     
     // Lookup the size the browser is displaying the canvas.
-    var displayWidth  = canvas.clientWidth;
-    var displayHeight = canvas.clientHeight;
+    /*var displayWidth  = canvas.clientWidth;
+    var displayHeight = canvas.clientHeight;*/
+
+    var displayWidth  = window.innerWidth;
+    var displayHeight = window.innerHeight;
+    
     
     // Check if the canvas is not the same size.
     if (canvas.width  != displayWidth ||
         canvas.height != displayHeight) {
-	
+
+	console.log("cwidth: " + canvas.width);
+	console.log("dwidth: " + displayWidth);
+	console.log("diwidth: " + window.outerWidth);
         // Make the canvas the same size
-        canvas.width  = displayWidth;
-        canvas.height = displayHeight;
+	if(canvas.width != displayWidth){
+	    canvas.width  = displayWidth;
+	}
+
+	console.log("cheight: " + canvas.height);
+	console.log("dheight: " + displayHeight);
+	console.log("diheight: " + window.outerHeight);
+	if(canvas.height != displayHeight){
+	    console.log(":[");
+	    canvas.height = displayHeight;
+	}
 	
         // Set the viewport to match
         gl.viewport(0, 0, canvas.width, canvas.height);
     }
 }
+
