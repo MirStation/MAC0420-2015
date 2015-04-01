@@ -178,6 +178,7 @@ function loadObjFile(data) {
 
     //console.log("NumVertices: " + objPacket.numVertices);
 
+    //console.log("End of parsing ...");
     return objPacket;
 }
 

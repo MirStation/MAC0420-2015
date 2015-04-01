@@ -273,32 +273,38 @@ function loadObject(data) {
 
 function vertexNormalsConstructor(){
     var adjacentNormals, vertexNormal, vertexIndex, vertexNormalsAux = [];
-    
     if(typeof vertexNormals !== 'undefined' && vertexNormals.length == 0){
+	console.log("Calculating vertex normals ...");
 	for(var v=1; v<=objInfo.numDistinctVertices; v++){
 	    // Finding the normals of v's adjacent faces
 	    adjacentNormals = [];
 	    for(var i=0; i<objInfo.faces.length; i++){
 		vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
 		if((v == vertexIndex[0]) || (v == vertexIndex[1]) || (v == vertexIndex[2])){
+		    //console.log("O.O");
 		    adjacentNormals.push(objInfo.faceNormalsAux[i]);
 		}
-	    }
-	    
+	    }	    
 	    // Calculating v's normal
 	    vertexNormal = [0,0,0];
-	    for(var i=0; i<adjacentNormals.length; i++){
-		vertexNormal[0] += adjacentNormals[i][0];
-		vertexNormal[1] += adjacentNormals[i][1];
-		vertexNormal[2] += adjacentNormals[i][2];
+	    if(typeof adjacentNormals !== 'undefined' && adjacentNormals.length > 0){
+		for(var i=0; i<adjacentNormals.length; i++){
+		    vertexNormal[0] += adjacentNormals[i][0];
+		    vertexNormal[1] += adjacentNormals[i][1];
+		    vertexNormal[2] += adjacentNormals[i][2];
+		}
+		//console.log(vertexNormal);
+		vertexNormal[0] /= adjacentNormals.length;
+		vertexNormal[1] /= adjacentNormals.length;
+		vertexNormal[2] /= adjacentNormals.length;
+		//console.log(":}");
+		vertexNormalsAux.push(normalize(vertexNormal));
+		//console.log(":{");
+	    } else {
+		vertexNormalsAux.push(vertexNormal);
 	    }
-	    
-	    vertexNormal[0] /= adjacentNormals.length;
-	    vertexNormal[1] /= adjacentNormals.length;
-	    vertexNormal[2] /= adjacentNormals.length;
-	    
-	    vertexNormalsAux.push(normalize(vertexNormal));
 	}
+	console.log("Constructing vertex normals ...");
 	// Constructing vertex normals
 	for(var i=0; i<objInfo.faces.length; i++){
 	    vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
@@ -310,5 +316,6 @@ function vertexNormalsConstructor(){
 		vertexNormals.push(0.0);
 	    }
 	}
+	console.log("Done.");
     }
 }
