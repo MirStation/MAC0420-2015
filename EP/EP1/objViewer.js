@@ -10,6 +10,7 @@ var pointsArray = [];
 var normalsArray = [];
 
 var objInfo;
+var vertexNormals;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -150,7 +151,8 @@ window.onload = function init() {
     };
     document.getElementById("ButtonSS").onclick = function(){
 	if(typeof objInfo !== 'undefined') {
-	    createBuffers(objInfo.vertices, objInfo.vertexNormals);
+	    vertexNormalsConstructor();
+	    createBuffers(objInfo.vertices, vertexNormals);
 	} else {
 	    alert("Please, load an obj file first!");
 	}
@@ -257,11 +259,56 @@ function loadObject(data) {
     // TO DO: convert strings into array of vertex and normal vectors
     // TO DO: apply transformation to the object so that he is centered at the origin
     objInfo = loadObjFile(data);
-    for(var i=0, j=0; i<result.numVertices; i++, j+=4) {
+    for(var i=0, j=0; i<objInfo.numVertices; i++, j+=4) {
 	objInfo.vertices[j] += objInfo.axisDistToCenter[0];
 	objInfo.vertices[j+1] += objInfo.axisDistToCenter[1];
 	objInfo.vertices[j+2] += objInfo.axisDistToCenter[2];
     }
     numVertices = objInfo.numVertices;
     createBuffers(objInfo.vertices, objInfo.normals);
+    vertexNormals = [];
+}
+
+// TEST
+
+function vertexNormalsConstructor(){
+    var adjacentNormals, vertexNormal, vertexIndex, vertexNormalsAux = [];
+    
+    if(typeof vertexNormals !== 'undefined' && vertexNormals.length == 0){
+	for(var v=1; v<=objInfo.numDistinctVertices; v++){
+	    // Finding the normals of v's adjacent faces
+	    adjacentNormals = [];
+	    for(var i=0; i<objInfo.faces.length; i++){
+		vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
+		if((v == vertexIndex[0]) || (v == vertexIndex[1]) || (v == vertexIndex[2])){
+		    adjacentNormals.push(objInfo.faceNormalsAux[i]);
+		}
+	    }
+	    
+	    // Calculating v's normal
+	    vertexNormal = [0,0,0];
+	    for(var i=0; i<adjacentNormals.length; i++){
+		vertexNormal[0] += adjacentNormals[i][0];
+		vertexNormal[1] += adjacentNormals[i][1];
+		vertexNormal[2] += adjacentNormals[i][2];
+	    }
+	    
+	    vertexNormal[0] /= adjacentNormals.length;
+	    vertexNormal[1] /= adjacentNormals.length;
+	    vertexNormal[2] /= adjacentNormals.length;
+	    
+	    vertexNormalsAux.push(normalize(vertexNormal));
+	}
+	// Constructing vertex normals
+	for(var i=0; i<objInfo.faces.length; i++){
+	    vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
+	    for(var j=0; j<objInfo.faces[i].length; j++){
+		// Vertex normal
+		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][0]);
+		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][1]);
+		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][2]);
+		vertexNormals.push(0.0);
+	    }
+	}
+    }
 }
