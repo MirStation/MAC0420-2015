@@ -29,9 +29,6 @@ uniform mat4 projectionMatrix;
 
 uniform vec4 lightPosition;
 
-// Scale
-uniform mat4 scaleMatrix;
-
 void main()
 {
     vec3 pos = -(modelViewMatrix * vPosition).xyz; // Does it need to be scaled?
@@ -90,7 +87,7 @@ void main()
 
 <body>
 <p>
-<canvas id="gl-canvas" width="512" height="512" min-width:"512" min-height:"512">
+<canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
 </canvas>
 </p>
@@ -98,5 +95,7 @@ Oops ... your browser doesn't support the HTML5 canvas element
 <button id = "ButtonY">Rotate Y</button>
 <button id = "ButtonZ">Rotate Z</button>
 <button id = "ButtonT">Toggle Rotation</button>
+<button id = "ButtonFS">Flat Shading</button>
+<button id = "ButtonSS">Smooth Shading</button>
 </body>
 </html>

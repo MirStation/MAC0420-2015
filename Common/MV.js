@@ -277,6 +277,7 @@ function mult( u, v )
     var result = [];
 
     if ( u.matrix && v.matrix ) {
+	
         if ( u.length != v.length ) {
             throw "mult(): trying to add matrices of different dimensions";
         }
@@ -298,12 +299,13 @@ function mult( u, v )
                 result[i].push( sum );
             }
         }
-
+	
         result.matrix = true;
 
         return result;
     }
     else {
+	
         if ( u.length != v.length ) {
             throw "mult(): vectors are not the same dimension";
         }

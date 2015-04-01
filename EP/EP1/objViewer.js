@@ -9,6 +9,8 @@ var numVertices  = 36;
 var pointsArray = [];
 var normalsArray = [];
 
+var objInfo;
+
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
     vec4( -0.5,  0.5,  0.5, 1.0 ),
@@ -138,6 +140,21 @@ window.onload = function init() {
     document.getElementById("ButtonY").onclick = function(){axis = yAxis;};
     document.getElementById("ButtonZ").onclick = function(){axis = zAxis;};
     document.getElementById("ButtonT").onclick = function(){flag = !flag;};
+
+    document.getElementById("ButtonFS").onclick = function(){
+	if(typeof objInfo !== 'undefined') {
+	    createBuffers(objInfo.vertices, objInfo.faceNormals);
+	} else {
+	    alert("Please, load an obj file first!");
+	}
+    };
+    document.getElementById("ButtonSS").onclick = function(){
+	if(typeof objInfo !== 'undefined') {
+	    createBuffers(objInfo.vertices, objInfo.vertexNormals);
+	} else {
+	    alert("Please, load an obj file first!");
+	}
+    };
     
     document.getElementById('files').onchange = function (evt) {
         // TO DO: load OBJ file and display
@@ -239,62 +256,12 @@ function loadObject(data) {
 
     // TO DO: convert strings into array of vertex and normal vectors
     // TO DO: apply transformation to the object so that he is centered at the origin
-
-    var result = loadObjFile(data);
-    var xDistToCenter, yDistToCenter, zDistToCenter;
-    
-    xDistToCenter = distToCenter(result.maxCoordinateOf[0], result.minCoordinateOf[0]);
-    yDistToCenter = distToCenter(result.maxCoordinateOf[1], result.minCoordinateOf[1]);
-    zDistToCenter = distToCenter(result.maxCoordinateOf[2], result.minCoordinateOf[2]);
-    
+    objInfo = loadObjFile(data);
     for(var i=0, j=0; i<result.numVertices; i++, j+=4) {
-        result.vertices[j] += xDistToCenter;
-        result.vertices[j+1] += yDistToCenter;
-        result.vertices[j+2] += zDistToCenter;
+	objInfo.vertices[j] += objInfo.axisDistToCenter[0];
+	objInfo.vertices[j+1] += objInfo.axisDistToCenter[1];
+	objInfo.vertices[j+2] += objInfo.axisDistToCenter[2];
     }
-
-    createBuffers(result.vertices, result.normals);
-    numVertices = result.numVertices;
+    numVertices = objInfo.numVertices;
+    createBuffers(objInfo.vertices, objInfo.normals);
 }
-
-function distToCenter(max, min) {
-    var med = min + ((max - min) / 2);
-    var absMed = Math.abs(med);
-    return med >= 0 ? (-1 * absMed) : absMed;
-}
-
-function resize() {
-    
-    // Lookup the size the browser is displaying the canvas.
-    /*var displayWidth  = canvas.clientWidth;
-    var displayHeight = canvas.clientHeight;*/
-
-    var displayWidth  = window.innerWidth;
-    var displayHeight = window.innerHeight;
-    
-    
-    // Check if the canvas is not the same size.
-    if (canvas.width  != displayWidth ||
-        canvas.height != displayHeight) {
-
-	console.log("cwidth: " + canvas.width);
-	console.log("dwidth: " + displayWidth);
-	console.log("diwidth: " + window.outerWidth);
-        // Make the canvas the same size
-	if(canvas.width != displayWidth){
-	    canvas.width  = displayWidth;
-	}
-
-	console.log("cheight: " + canvas.height);
-	console.log("dheight: " + displayHeight);
-	console.log("diheight: " + window.outerHeight);
-	if(canvas.height != displayHeight){
-	    console.log(":[");
-	    canvas.height = displayHeight;
-	}
-	
-        // Set the viewport to match
-        gl.viewport(0, 0, canvas.width, canvas.height);
-    }
-}
-
