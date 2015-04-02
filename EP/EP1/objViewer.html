@@ -2,12 +2,12 @@
 <html>
 <head>
   <style>
-    /* make the body fill the window */
-    html, body {
+    /*Makes body fill the width of window*/
+    html, body , canvas{
     margin: 0px;
-    /*width: 100%;
-    height: 100%;
-    overflow: hidden;*/
+    padding: 0px;
+    border: 0px;
+    width: 100%;
     }
   </style>
   <meta charset="utf-8" />
@@ -83,9 +83,8 @@ void main()
 <script type="text/javascript" src="objViewer.js"></script>
 <script type="text/javascript" src="objReader.js"></script>
 
-<input type="file" id="files" name="files[]" accept=".obj,"></input>
-
 <body>
+<input type="file" id="files" name="files[]" accept=".obj,"></input>
 <p>
 <canvas id="gl-canvas" width="512" height="512">
 Oops ... your browser doesn't support the HTML5 canvas element
@@ -95,7 +94,9 @@ Oops ... your browser doesn't support the HTML5 canvas element
 <button id = "ButtonY">Rotate Y</button>
 <button id = "ButtonZ">Rotate Z</button>
 <button id = "ButtonT">Toggle Rotation</button>
+<!--Flat shading button-->
 <button id = "ButtonFS">Flat Shading</button>
+<!--Smooth shading button-->
 <button id = "ButtonSS">Smooth Shading</button>
 </body>
 </html>

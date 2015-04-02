@@ -9,8 +9,11 @@ var numVertices  = 36;
 var pointsArray = [];
 var normalsArray = [];
 
+// Object used to store all the obj infos
 var objInfo;
-//var vertexNormals;
+// Flags used to prevent multiple applications of the same shading (multiples clicks on the same shading button)
+var smoothShadingFlag;
+var flatShadingFlag;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -100,6 +103,8 @@ function colorCube()
     quad( 5, 4, 0, 1 );
 }
 
+var test;
+
 window.onload = function init() {
     
     canvas = document.getElementById( "gl-canvas" );
@@ -142,17 +147,26 @@ window.onload = function init() {
     document.getElementById("ButtonZ").onclick = function(){axis = zAxis;};
     document.getElementById("ButtonT").onclick = function(){flag = !flag;};
 
+    // Apply flat shading
     document.getElementById("ButtonFS").onclick = function(){
 	if(typeof objInfo !== 'undefined') {
-	    createBuffers(objInfo.vertices, objInfo.faceNormals);
+	    if(flatShadingFlag) {
+		createBuffers(objInfo.vertices, objInfo.faceNormals);
+		flatShadingFlag = false;
+		smoothShadingFlag = true;
+	    }
 	} else {
 	    alert("Please, load an obj file first!");
 	}
     };
+    // Apply smooth shading
     document.getElementById("ButtonSS").onclick = function(){
 	if(typeof objInfo !== 'undefined') {
-	    //vertexNormalsConstructor();
-	    createBuffers(objInfo.vertices, objInfo.vertexNormals);
+	    if(smoothShadingFlag){
+		createBuffers(objInfo.vertices, objInfo.vertexNormals);
+		smoothShadingFlag = false;
+		flatShadingFlag = true;
+	    }
 	} else {
 	    alert("Please, load an obj file first!");
 	}
@@ -193,10 +207,12 @@ window.onload = function init() {
 }
 
 var render = function() {
-    
-    var displayWidth  = window.innerWidth;
-    var displayHeight = window.innerHeight;
 
+    var displayWidth  = window.innerWidth;
+    // Computing the right display height so that the hole page fits the web browser window without (vertical) scrolls
+    var displayHeight = window.innerHeight - (document.body.clientHeight - canvas.clientHeight);
+
+    // Computing the right scale matrix to resize canvas
     var min = Math.min(displayWidth,displayHeight);
     scaleMatrix = scale( min/displayWidth, min/displayHeight, min/displayWidth);
 
@@ -204,7 +220,7 @@ var render = function() {
 	canvas.width  = displayWidth;
         canvas.height = displayHeight;
     }
-
+    // Resizing viewport
     gl.viewport(0, 0, canvas.width, canvas.height);
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -217,6 +233,7 @@ var render = function() {
 
     modelViewMatrix = lookAt(eye, at, up);
 
+    // Apply scale matrix to the model view matrix
     modelViewMatrix = mult(modelViewMatrix, scaleMatrix);
               
     modelViewMatrix = mult(modelViewMatrix, rotate(theta[xAxis], [1, 0, 0] ));
@@ -255,67 +272,18 @@ function createBuffers(points, normals) {
 }
 
 function loadObject(data) {
-
-    // TO DO: convert strings into array of vertex and normal vectors
-    // TO DO: apply transformation to the object so that he is centered at the origin
+    // Initialize objInfo with all the infos retrieved from the obj file
     objInfo = loadObjFile(data);
+    // Apply transformation to the object so that he is centered at the origin
     for(var i=0, j=0; i<objInfo.numVertices; i++, j+=4) {
 	objInfo.vertices[j] += objInfo.axisDistToCenter[0];
 	objInfo.vertices[j+1] += objInfo.axisDistToCenter[1];
 	objInfo.vertices[j+2] += objInfo.axisDistToCenter[2];
     }
+    // Initialize the number of vertices and the buffers
     numVertices = objInfo.numVertices;
     createBuffers(objInfo.vertices, objInfo.normals);
-    //vertexNormals = [];
+    // Initialize smooth and flat shadings flags
+    smoothShadingFlag = true;
+    flatShadingFlag = true;
 }
-
-/* TEST
-function vertexNormalsConstructor(){
-    var adjacentNormals, vertexNormal, vertexIndex, vertexNormalsAux = [];
-    if(typeof vertexNormals !== 'undefined' && vertexNormals.length == 0){
-	console.log("Calculating vertex normals ...");
-	for(var v=1; v<=objInfo.numDistinctVertices; v++){
-	    // Finding the normals of v's adjacent faces
-	    adjacentNormals = [];
-	    for(var i=0; i<objInfo.faces.length; i++){
-		vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
-		if((v == vertexIndex[0]) || (v == vertexIndex[1]) || (v == vertexIndex[2])){
-		    //console.log("O.O");
-		    adjacentNormals.push(objInfo.faceNormalsAux[i]);
-		}
-	    }	    
-	    // Calculating v's normal
-	    vertexNormal = [0,0,0];
-	    if(typeof adjacentNormals !== 'undefined' && adjacentNormals.length > 0){
-		for(var i=0; i<adjacentNormals.length; i++){
-		    vertexNormal[0] += adjacentNormals[i][0];
-		    vertexNormal[1] += adjacentNormals[i][1];
-		    vertexNormal[2] += adjacentNormals[i][2];
-		}
-		//console.log(vertexNormal);
-		vertexNormal[0] /= adjacentNormals.length;
-		vertexNormal[1] /= adjacentNormals.length;
-		vertexNormal[2] /= adjacentNormals.length;
-		//console.log(":}");
-		vertexNormalsAux.push(normalize(vertexNormal));
-		//console.log(":{");
-	    } else {
-		vertexNormalsAux.push(vertexNormal);
-	    }
-	}
-	console.log("Constructing vertex normals ...");
-	// Constructing vertex normals
-	for(var i=0; i<objInfo.faces.length; i++){
-	    vertexIndex = getVerticesIndexesFromFace(objInfo.faces[i]);
-	    for(var j=0; j<objInfo.faces[i].length; j++){
-		// Vertex normal
-		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][0]);
-		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][1]);
-		vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][2]);
-		vertexNormals.push(0.0);
-	    }
-	}
-	console.log("Done.");
-    }
-}
-*/

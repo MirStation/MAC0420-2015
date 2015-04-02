@@ -1,9 +1,5 @@
 function loadObjFile(data) {
 
-    // TO DO:   (i) Parse OBJ file and extract vertices and normal vectors
-    // TO DO:  (ii) If normal vectors are not in the file, you will need to calculate them
-    // TO DO: (iii) Return vertices and normals and any associated information you might find useful
-
     // Array with all the vertices
     var verticesAux = []; 
     // Array with all the normal vectors
@@ -20,7 +16,8 @@ function loadObjFile(data) {
     // Hash table that keeps the normals for each vertex index
     var vertexFaceNormals = {};
 
-    // Object with all the position vertices and the normal vectors
+    // Object with position vertices, normal vectors (retrieved from the obj), number of vertices,
+    // face normals (calculated), vertex normals(calculated) and center of obj 
     var objPacket = { vertices:[], numVertices:0, normals:[], faceNormals:[], vertexNormals:[], axisDistToCenter:[] }; 
 
     // Parsing the lines of the obj file
@@ -32,18 +29,15 @@ function loadObjFile(data) {
 	switch(token.shift()) {
     	case "v":
     	    // Appending the token array to the flatten array of vertices
-	    console.log("v ");
 	    numDistinctVertices++;
 	    verticesAux.push.apply(verticesAux, token);
             break;
     	case "vn":
             // Appending the token array to the flatten array of normals
-	    console.log("vn");
 	    normalsAux.push.apply(normalsAux, token);
 	    break;
         case "f":
 	    // Appending the a triangulated face to the array of faces
-	    console.log("f");
 	    facesAux.push.apply(facesAux, faceTriangulator(token));
             break;
     	default:
@@ -52,41 +46,23 @@ function loadObjFile(data) {
     }
 
     // Initializing the hash table vertexFaceNormals
-    //console.log("numDistVert: " + numDistinctVertices);
     for(var i=1; i<=numDistinctVertices; i++){
 	vertexFaceNormals[i] = [];
     }
-
-    /* HASH TEST
-    console.log(vertexFaceNormals);
-    for(var i=1; i<=numDistinctVertices; i++){
-	vertexFaceNormals[i].push([i,3,i]);
-	vertexFaceNormals[i].push([i,5,i]);
-    }
-    for(var i=1; i<=numDistinctVertices; i++){
-	console.log(vertexFaceNormals[i][0] + " " + vertexFaceNormals[i][1]);
-    }
-    */
     
     // Calculating the normals of each face
     var vPositions, faceNormal, vertexIndex;
-
-    //console.log("Face normals:");
-
     for(var i=0; i<facesAux.length; i++){
 	vertexIndex = getVerticesIndexesFromFace(facesAux[i]);
 	vPositions = getInfoFromFace(facesAux[i], 0, verticesAux);
 	faceNormal = normalCalculator(vPositions[0], vPositions[1], vPositions[2]);
 	faceNormalsAux.push(faceNormal);
 	// Saving the vertex face normals
-	//console.log("vP0: " + vPositions[0]);
 	vertexFaceNormals[vertexIndex[0]].push(faceNormal);
 	vertexFaceNormals[vertexIndex[1]].push(faceNormal);
 	vertexFaceNormals[vertexIndex[2]].push(faceNormal);
-	//console.log("fN - " + normalCalculator(vPositions[0], vPositions[1], vPositions[2]));
     }
-
-   
+    
     // Calculating the normals of each vertex
     var vertexNormal;
     for(var v=1; v<=numDistinctVertices; v++){
@@ -156,27 +132,17 @@ function loadObjFile(data) {
     // Calculating the distance to the origin for each axis
     // x
     objPacket.axisDistToCenter[0] = distToCenter(maxCoordinateOf[0], minCoordinateOf[0]);
-
-    //console.log("xDistToCenter: " + objPacket.axisDistToCenter[0]);
-
     // y
-    objPacket.axisDistToCenter[1] = distToCenter(maxCoordinateOf[1], minCoordinateOf[1]); 
-
-    //console.log("yDistToCenter: " + objPacket.axisDistToCenter[1]);
-
+    objPacket.axisDistToCenter[1] = distToCenter(maxCoordinateOf[1], minCoordinateOf[1]);
     // z
     objPacket.axisDistToCenter[2] = distToCenter(maxCoordinateOf[2], minCoordinateOf[2]); 
-
-    //console.log("zDistToCenter: " + objPacket.axisDistToCenter[2]);
 
     // Calculating total number of vertices used by the faces
     objPacket.numVertices = facesAux.length * 3;
 
-    //console.log("NumVertices: " + objPacket.numVertices);
-
     return objPacket;
 }
-
+/*Tranforms a non triangular face into a triangular face*/
 function faceTriangulator(face) {
     var triangles = [], triangle = [], index=0;
     var firstVertex, lastVertex;
@@ -203,6 +169,7 @@ function faceTriangulator(face) {
     return triangles;
 }
 
+/*Returns the vertices indexes from a given face.*/
 function getVerticesIndexesFromFace(face) {
     var verticesIndexesRetrieved = [];
     if(face.length != 3) {
@@ -216,6 +183,7 @@ function getVerticesIndexesFromFace(face) {
     return verticesIndexesRetrieved;
 }
 
+/*Return an info in a face. Example: typeInfo=0 and info=(array with vertices) will return all vertices in that face*/
 function getInfoFromFace(face, typeInfo, infos) {
     var infoRetrieved = [];
     if(face.length != 3) {
@@ -229,6 +197,7 @@ function getInfoFromFace(face, typeInfo, infos) {
     return infoRetrieved;
 }
 
+/*Calculates the normal of three vertices*/
 function normalCalculator(v1, v2, v3) {
     var perp, side1, side2;
     side1 = subtract(v2, v1);
@@ -237,14 +206,17 @@ function normalCalculator(v1, v2, v3) {
     return normalize(perp);
 }
 
+/*Between two coordinates, it returns the maximum*/
 function maxCoordinate(c, maxc) {
     return (c > maxc) || (typeof maxc === 'undefined') ? c : maxc;
 }
 
+/*Between two coordinates, it returns the minimum*/
 function minCoordinate(c, minc){
     return (c < minc) || (typeof minc === 'undefined') ? c : minc;	
 }
 
+/*Calculates the distance to center*/
 function distToCenter(max, min) {
     var med = min + ((max - min) / 2);
     var absMed = Math.abs(med);
