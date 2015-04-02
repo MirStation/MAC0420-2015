@@ -1,0 +1,39 @@
+
+MAC0420 - 2015 - EP1
+
+António Martins Miranda
+7644342
+
+
+Intruções de instalação e execução do EP1:
+
+Para instalar o EP1, basta extrair os arquivos EP1,Common e objs, que se encontram tgz AntonioMartinsMiranda, no mesmo diretório.
+Antes de executar o EP1, verifique se o webGL já está habilitado no seu browser de preferência. Agora, para executar o EP1, basta
+abrir o ficheiro EP1/objViewer.html no seu browser.
+
+Modo de uso:
+
+Primeiro temos de carregar um ficheiro obj no software (o diretório EP1/objs/ contém alguns objs para teste) e para isso usamos o botão
+"Browse"(o software só processa um obj de cada vez). Para interagirmos com o obj carregado basta usar os botões que implementam as
+funcionalidades de rotação (botões "Rotate x", "Rotate y", "Rotate z" e "Toggle Rotation") e os botões que implementam as funcionalidades
+de sombreamento (botões "Flat Shading" e "Smooth Shading").
+
+Detalhes da implementação:
+
+Na implementação que eu fiz do EP1, o meu parser, além de extrair informações do obj(vértices e normais), também calcula as normais para
+cada vértice (usadas no smooth shading), as normais para cada face (usadas no flat shading), o centro do obj(usado pela transformação de
+centralização do obj) e o número total de vétices nas faces(usada no momento da renderização do obj). Todas essas informações serão usadas
+pelo objViewer, para renderizar o obj e implementar outras funcionalidades do software (exemplo, "Flat Shading" e "Smooth Shading").
+
+A implementação do "Smooth Shading" foi baseada na proposta de Gouraud(usar a média das normais adjacentes ao vértice). Para garantir uma
+maior eficiência na determinação das normais das faces adjacentes de um vétice, usei uma "hash table" indexada pelos índices dos vétices e
+cujo conteúdo eram as normais das suas faces adjacentes.
+
+Observações finais:
+
+Como no arquivo Common/MV.js existem duas funções com nome "scale" e para evitar conflitos, comentei o scale que não era importante para a
+implementação do EP1.
+
+
+
+
