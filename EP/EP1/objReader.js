@@ -16,9 +16,12 @@ function loadObjFile(data) {
     var vertexNormalsAux = [];
     // Number of distinct vertices
     var numDistinctVertices = 0;
-    
+
+    // Hash table that keeps the normals for each vertex index
+    var vertexFaceNormals = {};
+
     // Object with all the position vertices and the normal vectors
-    var objPacket = { vertices:[], numVertices:0, numDistinctVertices:0, normals:[], faceNormals:[]/*, vertexNormals:[]*/, faceNormalsAux:[], faces:[], axisDistToCenter:[] }; 
+    var objPacket = { vertices:[], numVertices:0, normals:[], faceNormals:[], vertexNormals:[], axisDistToCenter:[] }; 
 
     // Parsing the lines of the obj file
     var lines = data.split('\n'); // Splitting the obj file into an array of lines
@@ -48,65 +51,64 @@ function loadObjFile(data) {
 	}
     }
 
+    // Initializing the hash table vertexFaceNormals
+    //console.log("numDistVert: " + numDistinctVertices);
+    for(var i=1; i<=numDistinctVertices; i++){
+	vertexFaceNormals[i] = [];
+    }
+
+    /* HASH TEST
+    console.log(vertexFaceNormals);
+    for(var i=1; i<=numDistinctVertices; i++){
+	vertexFaceNormals[i].push([i,3,i]);
+	vertexFaceNormals[i].push([i,5,i]);
+    }
+    for(var i=1; i<=numDistinctVertices; i++){
+	console.log(vertexFaceNormals[i][0] + " " + vertexFaceNormals[i][1]);
+    }
+    */
+    
     // Calculating the normals of each face
-    var vPositions, faceNormal;
+    var vPositions, faceNormal, vertexIndex;
 
     //console.log("Face normals:");
 
     for(var i=0; i<facesAux.length; i++){
+	vertexIndex = getVerticesIndexesFromFace(facesAux[i]);
 	vPositions = getInfoFromFace(facesAux[i], 0, verticesAux);
-	faceNormalsAux.push(normalCalculator(vPositions[0], vPositions[1], vPositions[2]));
-
+	faceNormal = normalCalculator(vPositions[0], vPositions[1], vPositions[2]);
+	faceNormalsAux.push(faceNormal);
+	// Saving the vertex face normals
+	//console.log("vP0: " + vPositions[0]);
+	vertexFaceNormals[vertexIndex[0]].push(faceNormal);
+	vertexFaceNormals[vertexIndex[1]].push(faceNormal);
+	vertexFaceNormals[vertexIndex[2]].push(faceNormal);
 	//console.log("fN - " + normalCalculator(vPositions[0], vPositions[1], vPositions[2]));
     }
 
-    /*
+   
     // Calculating the normals of each vertex
-    var adjacentNormals, vertexNormal, vertexIndex;
-
-    //console.log("Vertex normals:");
-    
+    var vertexNormal;
     for(var v=1; v<=numDistinctVertices; v++){
-	// Finding the normals of v's adjacent faces
-	adjacentNormals = [];
-	for(var i=0; i<facesAux.length; i++){
-	    vertexIndex = getVerticesIndexesFromFace(facesAux[i]);
-	    if((v == vertexIndex[0]) || (v == vertexIndex[1]) || (v == vertexIndex[2])){
-		adjacentNormals.push(faceNormalsAux[i]);
-
-		//console.log(":]");
-	    }
-	}
-
-	//console.log("Adjacent normals:");
-	//console.log(adjacentNormals);
-
 	// Calculating v's normal
 	vertexNormal = [0,0,0];
-	for(var i=0; i<adjacentNormals.length; i++){
-	    vertexNormal[0] += adjacentNormals[i][0];
-	    vertexNormal[1] += adjacentNormals[i][1];
-	    vertexNormal[2] += adjacentNormals[i][2];
+	if(typeof vertexFaceNormals[v] !== 'undefined' && vertexFaceNormals[v].length > 0){
+	    for(var i=0; i<vertexFaceNormals[v].length; i++){
+		vertexNormal[0] += vertexFaceNormals[v][i][0];
+		vertexNormal[1] += vertexFaceNormals[v][i][1];
+		vertexNormal[2] += vertexFaceNormals[v][i][2];
+	    }
+	    vertexNormal[0] /= vertexFaceNormals[v].length;
+	    vertexNormal[1] /= vertexFaceNormals[v].length;
+	    vertexNormal[2] /= vertexFaceNormals[v].length;
+	    vertexNormalsAux.push(normalize(vertexNormal));
+	} else {
+	    vertexNormalsAux.push(vertexNormal);
 	}
-
-	//console.log("vertex normals 1:");
-	//console.log(vertexNormal);
-
-	vertexNormal[0] /= adjacentNormals.length;
-	vertexNormal[1] /= adjacentNormals.length;
-	vertexNormal[2] /= adjacentNormals.length;
-
-	//console.log("vertex normals 2:");
-	//console.log(vertexNormal);
-
-	vertexNormalsAux.push(normalize(vertexNormal));
-
-	//console.log("vN - " + normalize(vertexNormal));
     }
-    */
     
     // Preparing objPacket for objViewer
-    var vPositions, vNormals = [], maxCoordinateOf = [], minCoordinateOf = [];
+    var vNormals = [], maxCoordinateOf = [], minCoordinateOf = [];
     for(var i=0; i<facesAux.length; i++){
 	vPositions = getInfoFromFace(facesAux[i], 0, verticesAux);
 	if(typeof normalsAux !== 'undefined' && normalsAux.length == 0) {
@@ -117,7 +119,7 @@ function loadObjFile(data) {
 	} else {
 	    vNormals = getInfoFromFace(facesAux[i], 2, normalsAux);
 	}
-	//vertexIndex = getVerticesIndexesFromFace(facesAux[i]);
+	vertexIndex = getVerticesIndexesFromFace(facesAux[i]);
 	for(var j=0; j<facesAux[i].length; j++){
 	    // Vertex
 	    objPacket.vertices.push(vPositions[j][0]);
@@ -145,10 +147,10 @@ function loadObjFile(data) {
 	    objPacket.faceNormals.push(faceNormalsAux[i][2]);
 	    objPacket.faceNormals.push(0.0);
 	    // Vertex normal
-	    /*objPacket.vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][0]);
+	    objPacket.vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][0]);
 	    objPacket.vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][1]);
 	    objPacket.vertexNormals.push(vertexNormalsAux[vertexIndex[j]-1][2]);
-	    objPacket.vertexNormals.push(0.0);*/
+	    objPacket.vertexNormals.push(0.0);
 	}
     }
     // Calculating the distance to the origin for each axis
@@ -170,15 +172,8 @@ function loadObjFile(data) {
     // Calculating total number of vertices used by the faces
     objPacket.numVertices = facesAux.length * 3;
 
-    objPacket.numDistinctVertices = numDistinctVertices;
-
-    // TEST
-    objPacket.faces = facesAux;
-    objPacket.faceNormalsAux = faceNormalsAux;
-
     //console.log("NumVertices: " + objPacket.numVertices);
 
-    //console.log("End of parsing ...");
     return objPacket;
 }
 

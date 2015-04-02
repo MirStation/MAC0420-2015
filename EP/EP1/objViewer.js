@@ -10,7 +10,7 @@ var pointsArray = [];
 var normalsArray = [];
 
 var objInfo;
-var vertexNormals;
+//var vertexNormals;
 
 var vertices = [
     vec4( -0.5, -0.5,  0.5, 1.0 ),
@@ -151,8 +151,8 @@ window.onload = function init() {
     };
     document.getElementById("ButtonSS").onclick = function(){
 	if(typeof objInfo !== 'undefined') {
-	    vertexNormalsConstructor();
-	    createBuffers(objInfo.vertices, vertexNormals);
+	    //vertexNormalsConstructor();
+	    createBuffers(objInfo.vertices, objInfo.vertexNormals);
 	} else {
 	    alert("Please, load an obj file first!");
 	}
@@ -266,11 +266,10 @@ function loadObject(data) {
     }
     numVertices = objInfo.numVertices;
     createBuffers(objInfo.vertices, objInfo.normals);
-    vertexNormals = [];
+    //vertexNormals = [];
 }
 
-// TEST
-
+/* TEST
 function vertexNormalsConstructor(){
     var adjacentNormals, vertexNormal, vertexIndex, vertexNormalsAux = [];
     if(typeof vertexNormals !== 'undefined' && vertexNormals.length == 0){
@@ -319,3 +318,4 @@ function vertexNormalsConstructor(){
 	console.log("Done.");
     }
 }
+*/
